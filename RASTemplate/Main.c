@@ -23,13 +23,21 @@ int main(void) {
 		read = LineSensorRead(ls, 0.75);
 	//	Printf("%x ", read);
 	//	Wait(1);
-		if (read >= 1 && read <= 40){
-			SetMotor(motor[0], -0.40); //turn left - tested at -0.30
+		if (read >= 1 && read <= 15){
+			SetMotor(motor[0], -0.50); //turn left - tested at -0.30
 			SetMotor(motor[1], 0.00);
 		}
 		else if (read >= 150){
-			SetMotor(motor[1], -0.40); //turn right - tested at -0.30
+			SetMotor(motor[1], -0.50); //turn right - tested at -0.30
 			SetMotor(motor[0], 0.00);
+		}
+		else if (read == 0) {
+			SetMotor(motor[0], -0.15);
+			SetMotor(motor[1], -0.15);
+		}
+		else if (read == 255) {
+			SetMotor(motor[0], 0.0);
+			SetMotor(motor[1], 0.0);
 		}
 		else{
 			SetMotor(motor[0], -0.30);
