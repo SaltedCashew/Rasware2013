@@ -6,6 +6,7 @@
 #include <RASLib/inc/common.h>
 #include <RASLib/inc/adc.h>
 // The 'main' function is the entry point of the program
+
 void delay(int);
 void SetPin(tPin, tBoolean);
 tLineSensor *ls;
@@ -16,33 +17,66 @@ int main(void) {
 //	unsigned char read;
 	tI2C *bus;
 	tADC *adc[4];
-//	tMotor *motor[2];
+	tMotor *motor[2];
 	float ADCValue;
-	//float ADCValue2;
-	//float ADCValue3;
+
 	InitializeMCU();
 	bus = InitializeI2C(PIN_B3, PIN_B2);
 	ls = InitializeLineSensor(bus, 0);
-//	motor[0] = InitializeMotor(PIN_C5, PIN_C4, true, false); //right wheel
-//	motor[1] = InitializeMotor(PIN_B7, PIN_B6, true, false); //left wheel
+	motor[0] = InitializeMotor(PIN_F2, PIN_F3, true, false); //right wheel
+	motor[1] = InitializeMotor(PIN_F0, PIN_F1, true, true); //left wheel
 	adc[0] = InitializeADC(PIN_E5);
-//	adc[1] = InitializeADC(PIN_D1);
- // adc[2] = InitializeADC(PIN_D2);
-//adc[3] = InitializeADC(PIN_D3);
-	//SetMotor(motor[0], -0.30); //Good at -0.20
-	//SetMotor(motor[1], -0.30); //Good at -0.20
-	
+
+
+	SetMotor (motor[1], -.15);
+	SetMotor (motor[0], -.150);
 	
 	while(1){
 
 		ADCValue = ADCRead(adc[0]);
-//		ADCValue2 = ADCRead(adc[1]);
-//		ADCValue3 = ADCRead(adc[2]);
+	//	ADCValue *= 1000; 
+	SetMotor (motor[0], -.15 * ADCValue); //change the right wheel only
+  
+	Printf("IR1 values: %d\t", (int)(1000 * ADCValue));	
+		Wait(.01);
 		
-		Printf("IR1 values: %d\t", (int)(1000 * ADCValue));
-	//	Printf("/n IR2 values: %d\t", (int)(1000 * ADCValue1));
-	//	Printf("/n IR3 values: %d\t", (int)(1000 * ADCValue2));
 		
+
+		
+			
+	/*	if (ADCValue <= 600) {
+			SetMotor(motor[0], -0.35);  
+			SetMotor(motor[1], -0.25);
+		}
+		
+		else  {
+			SetMotor(motor[0], -.25); 
+			SetMotor(motor[1], -0.35);
+		}
+*/			
+		
+		
+		/*
+		if (ADCValue >= 700){
+			SetMotor(motor[0], -0.15); //turn right
+			SetMotor(motor[1], -.25);
+		}
+		
+		if (ADCValue <= 600 &&  ADCValue>400) {
+			SetMotor(motor[0], -0.25); //turn Left 
+			SetMotor(motor[1], -.20);
+		}
+		
+		else if (ADCValue < 400) {
+			SetMotor(motor[0], -0.30); //turn Left Faster
+			SetMotor(motor[1], -0.00);
+		}
+		
+		else { 
+			SetMotor(motor[1], -0.25); 
+			SetMotor(motor[0], -0.25);
+		}
+		*/
 		/*		read = LineSensorRead(ls, 0.75);
 	//	Printf("%x ", read);
 	//	Wait(1);
