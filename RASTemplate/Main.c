@@ -5,6 +5,7 @@
 #include <RASLib/inc/i2c.h>
 #include <RASLib/inc/common.h>
 #include <RASLib/inc/adc.h>
+#include <RASLib/inc/encoder.h>
 
 
 void delay(int);
@@ -15,68 +16,22 @@ void SetPin(tPin, tBoolean);
 
 int main(void) {
 
-	tADC *adc[1];
 	tMotor *motor[2];
-	float ADCValue;
+	tEncoder *encoder[2];
 	double lmSpeed;
 	double rmSpeed;
-	
 	InitializeMCU();
-
-motor[0] = InitializeMotor(PIN_B7, PIN_B6, true, false); //right motor
-	motor[1] = InitializeMotor(PIN_C5, PIN_C4, true, true);
-	
-	//zero values
-	//		SetMotor(motor[0], -.52);
-	//  	SetMotor(motor[1], -.75); //-0.5 is stopped --
-	adc[0] = InitializeADC(PIN_D0);
-
-	
-	
-	lmSpeed = -.2;
-	rmSpeed = -.3;
-	
-		//SetMotor(motor[0], rmSpeed);
-		SetMotor(motor[1], lmSpeed);
-
-	
+	motor[0] = InitializeMotor(PIN_B7, PIN_B6, true, true); //left
+	motor[1] = InitializeMotor(PIN_C5, PIN_C4, true, true); //right
+	encoder[0] = InitializeEncoder(PIN_B5, PIN_D1, false);
+	encoder[1] = InitializeEncoder(PIN_E3, PIN_A7, false);
+	rmSpeed = -.4;
+	lmSpeed = -.3;
+//	SetMotor(motor[0], lmSpeed);
+//	SetMotor(motor[1], rmSpeed);
 	while(1){
-Printf("start\n");
-		ADCValue = ADCRead(adc[0]);
-		
-	
-  
-	// Printf("IR1 values: %d\t", (ADCValue));	
-  //Printf(" %d\n", (int)(ADCValue*1000));
-  // ADCValue *= 1000;
-	SetMotor (motor[0], -1 + (ADCValue)); //change the right wheel only --
-		// close distance = high value
-	
-	
-	/*	if (ADCValue >= 650){
-			SetMotor(motor[0], rmSpeed +.2); //turn right
-			
-		}
-		
-	//	else if (ADCValue <500 && ADCValue<800)
-	//	{ SetMotor(motor[0], rmSpeed - 0.05) ;
-	//	}
-		
-		else if (ADCValue < 	600) {
-			
-			SetMotor(motor[0], rmSpeed -.15); //turn left
-		}
-		
-		
-		else { 
-			SetMotor(motor[1], lmSpeed); 
-			SetMotor(motor[0], rmSpeed);
-		}
-*/
-		Wait(.01);
-		
-		
-	
+		Printf("Encoder 0: %d   Encoder 1: %d\n", GetEncoder(encoder[0]), GetEncoder(encoder[1]));
+		Wait(1);
 	}
 }
 
