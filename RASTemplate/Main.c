@@ -6,50 +6,54 @@
 #include <RASLib/inc/common.h>
 #include <RASLib/inc/adc.h>
 #include <RASLib/inc/encoder.h>
+#include <math.h>
 
 
 void delay(int);
 void SetPin(tPin, tBoolean);
 
 
-
+tLineSensor *ls;
 
 int main(void) {
-
 	tMotor *motor[2];
-	tEncoder *encoder[2];
-	int waiting = 0;
 	double lmSpeed;
 	double rmSpeed;
+	double mSpeed;
+	double mLeft, mRight;
+	double error;
+	double last_error = 0;
+	int i;
+	float line[8];
 	InitializeMCU();
+	ls = InitializeGPIOLineSensor(PIN_B5, PIN_D0, PIN_D1, PIN_D2, PIN_D3, PIN_E0, PIN_C6, PIN_C7);
 	motor[0] = InitializeMotor(PIN_B7, PIN_B6, true, true); //left
 	motor[1] = InitializeMotor(PIN_C5, PIN_C4, true, true); //right
-	rmSpeed = -.48;
-	lmSpeed = -.48;
+	rmSpeed = -.3;
+	lmSpeed = -.3;
 	SetMotor(motor[0], lmSpeed);
 	SetMotor(motor[1], rmSpeed);
-//	encoder[0] = InitializeEncoder(PIN_A3, PIN_E1, false);
-	encoder[1] = InitializeEncoder(PIN_E3, PIN_A7, false);
+	mLeft = lmSpeed;
+	mRight = rmSpeed;
 	while(1){
-//		Printf("Encoder 1: %d\n", GetEncoder(encoder[1]));
-/*		while(GetEncoder(encoder[1]) < (7800 * 11)){
-			SetMotor(motor[0], 0);
-			SetMotor(motor[1], rmSpeed);
-			Wait(0.1);
-			SetMotor(motor[0], lmSpeed);
-			SetMotor(motor[1], 0);
-			Wait(0.105);
+		LineSensorReadArray(ls, line);
+		for (i = 0; i < 8; i++){
+			if (line[i] > 0.3){
+				line[i] = 1;
+			}
+			else{
+				line[i] = 0;
+			}
 		}
-		*/
-		if (GetEncoder(encoder[1]) >= ((7500 + waiting) * 11)){
-			SetMotor(motor[0], lmSpeed);
-			SetMotor(motor[1], 0);
-			Wait(0.6);
-			ResetEncoder(encoder[1]);
-			waiting += 500;
-		}
-		SetMotor(motor[0], lmSpeed);
-		SetMotor(motor[1], rmSpeed);
+		error = (-3 * line[0]) + (-2 * line[1]) + (-1 * line[2]) + (0 * line[3]) + (0 * line[4]) + 
+		(1 *  line[5]) + (2 * line[6]) + (3 * line[7]);
+		last_error = error;
+		mSpeed = error * .07;
+		mLeft = fabs(mSpeed + fabs(lmSpeed)) * -1;
+		mRight = fabs(fabs(rmSpeed) - mSpeed) * -1;
+		Printf("mLeft: %0.01f   mRight: %0.01f\n", mLeft, mRight);
+		SetMotor(motor[0], mLeft);
+		SetMotor(motor[1], mRight);
 	}
 }
 
