@@ -21,6 +21,7 @@ int main(void) {
 	double rmSpeed;
 	double mSpeed;
 	double mLeft, mRight;
+	double sum;
 	double error;
 	double last_error = 0;
 	int i;
@@ -37,6 +38,7 @@ int main(void) {
 	mRight = rmSpeed;
 	while(1){
 		LineSensorReadArray(ls, line);
+		Printf("[");
 		for (i = 0; i < 8; i++){
 			if (line[i] > 0.3){
 				line[i] = 1;
@@ -44,14 +46,26 @@ int main(void) {
 			else{
 				line[i] = 0;
 			}
+			Printf(" %f", line[i]);
 		}
-		error = (-3 * line[0]) + (-2 * line[1]) + (-1 * line[2]) + (0 * line[3]) + (0 * line[4]) + 
-		(1 *  line[5]) + (2 * line[6]) + (3 * line[7]);
+		Printf("]\n");
+		sum = line[0] + line[1] + line[2] + line[3] + line[4] + line[5] + line[6] + line[7];
+		if (sum == 1 & line[0] == 1){
+			error = -6;
+		}
+		else if (sum == 1 & line[7] == 1){
+			error = 6;
+		}
+		else{
+			error = (-3 * line[0]) + (-2 * line[1]) + (-1 * line[2]) + (0 * line[3]) + (0 * line[4]) + 
+			(1 *  line[5]) + (2 * line[6]) + (3 * line[7]);
+		}
 		last_error = error;
-		mSpeed = error * .07;
+		mSpeed = error * .06;
 		mLeft = fabs(mSpeed + fabs(lmSpeed)) * -1;
 		mRight = fabs(fabs(rmSpeed) - mSpeed) * -1;
 		Printf("mLeft: %0.01f   mRight: %0.01f\n", mLeft, mRight);
+//		Wait(1);
 		SetMotor(motor[0], mLeft);
 		SetMotor(motor[1], mRight);
 	}
